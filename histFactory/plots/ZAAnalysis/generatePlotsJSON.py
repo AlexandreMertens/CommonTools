@@ -26,7 +26,7 @@ def printInJson(f, g, obj, objName, variables, variableNames, cut, cutName, binn
 
 # binnings
 
-pt_binning  = "(30, 0, 300)"
+pt_binning  = "(30, 0, 600)"
 eta_binning = "(30, -3, 3)"
 phi_binning = "(30, -3.1416, 3.1416"
 lepiso_binning = "(30, 0, 0.3)"
@@ -34,7 +34,8 @@ mj_binning = "(30, 0, 30)"
 csv_binning = "(100,0,1)"
 DR_binning = "(15, 0, 6)"
 DPhi_binning = "(10, 0, 3.1416)"
-MZ_binning = "(60,0,300)"
+MZ_binning = "(80,0,400)"
+Mjj_binning = "(30,0,600)"
 
 # Leptons variables
 
@@ -79,8 +80,15 @@ dijet = "za_diJets[0]"
 dijetName = "za_diJet"
 dijet_var = ["p4.Pt()", "p4.Eta()", "p4.Phi()", "p4.M()", "DR", "DEta", "DPhi"]
 dijet_varName = ["Pt", "Eta", "Phi", "M", "DR", "DEta", "DPhi"]
-dijet_binning = [pt_binning, eta_binning, phi_binning, MZ_binning, DR_binning, DR_binning, DPhi_binning]
+dijet_binning = [pt_binning, eta_binning, phi_binning, Mjj_binning, DR_binning, DR_binning, DPhi_binning]
 
+# Dilep-Dijet variables
+
+dijetdilep = "za_diLepDiJets[0]"
+dijetdilepName = "za_diLepDiJet"
+dijetdilep_var = ["p4.Pt()", "p4.Eta()", "p4.Phi()", "p4.M()"]
+dijetdilep_varName = ["Pt", "Eta", "Phi", "M"]
+dijetdilep_binning = [pt_binning, eta_binning, phi_binning, Mjj_binning, DR_binning, DR_binning, DPhi_binning]
 
 # Cuts
 
@@ -97,6 +105,9 @@ twoElTwojetsMM = "(elel_DileptonIsIDMM_cut * elel_Mll_cut * elel_DiJetBWP_MM_cut
 twoLepTwoBjets = "((elel_DileptonIsIDMM_cut * elel_Mll_cut * elel_DiJetBWP_MM_cut) || (mumu_DileptonIsIDMM_cut * mumu_Mll_cut * mumu_DiJetBWP_MM_cut)) * event_weight"
 twoLepTwoBjetsName  = "llbb"
 
+test_highMass = "((elel_DileptonIsIDMM_cut * elel_Mll_cut * elel_DiJetBWP_MM_cut) || (mumu_DileptonIsIDMM_cut * mumu_Mll_cut * mumu_DiJetBWP_MM_cut)) * (za_diLeptons[0].p4.Pt() < 200 && za_diJets[0].p4.Pt() > 200) * event_weight"
+test_highMassName = "llbb_HM"
+
 #print l_var[0]
 
 
@@ -108,6 +119,7 @@ fjson = open('plots_all.json', 'w')
 fjson.write( "plots = [\n")
 fyml = open('plots_all.yml', 'w')
 
+'''
 #printInJson(fjson, fyml, l1, l1Name, l_var, l_varName, twoMuTwojets, twoMuTwojetsName, l_binning, 0)
 #printInJson(fjson, fyml, l2, l2Name, l_var, l_varName, twoMuTwojets, twoMuTwojetsName, l_binning, 0)
 #printInJson(fjson, fyml, j1pt, j1ptName, j_var, j_varName, twoMuTwojets, twoMuTwojetsName, j_binning, 0)
@@ -137,6 +149,10 @@ printInJson(fjson, fyml, j2pt, j2ptName, j_var, j_varName, twoLepTwoBjets, twoLe
 printInJson(fjson, fyml, j1csv, j1csvName, j_var, j_varName, twoLepTwoBjets, twoLepTwoBjetsName, j_binning, 0)
 printInJson(fjson, fyml, j2csv, j2csvName, j_var, j_varName, twoLepTwoBjets, twoLepTwoBjetsName, j_binning, 0)
 printInJson(fjson, fyml, dilep, dilepName, dilep_var, dilep_varName, twoLepTwoBjets, twoLepTwoBjetsName, dilep_binning, 0)
-printInJson(fjson, fyml, dijet, dijetName, dijet_var, dijet_varName, twoLepTwoBjets, twoLepTwoBjetsName, dijet_binning, 1)
-
+printInJson(fjson, fyml, dijet, dijetName, dijet_var, dijet_varName, twoLepTwoBjets, twoLepTwoBjetsName, dijet_binning, 0)
+'''
+printInJson(fjson, fyml, dijetdilep, dijetdilepName, dijetdilep_var, dijetdilep_varName, twoLepTwoBjets, twoLepTwoBjetsName, dilep_binning, 0)
+printInJson(fjson, fyml, dijetdilep, dijetdilepName, dijetdilep_var, dijetdilep_varName, test_highMass, test_highMassName, dilep_binning, 0)
+printInJson(fjson, fyml, dilep, dilepName, dilep_var, dilep_varName, test_highMass, test_highMassName, dilep_binning, 0)
+printInJson(fjson, fyml, dijet, dijetName, dijet_var, dijet_varName, test_highMass, test_highMassName, dijet_binning, 1)
 

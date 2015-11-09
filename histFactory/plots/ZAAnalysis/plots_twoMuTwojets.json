@@ -45,7 +45,7 @@ plots = [
         'name': 'za_diLeptons0_M',
         'variable': 'za_diLeptons[0].p4.M()',
         'plot_cut': '(mumu_DileptonIsIDMM_cut * mumu_Mll_cut * mumu_DiJetBWP_MM_cut) * event_weight',
-        'binning': '(300,0,300)'
+        'binning': '(60,0,300)'
         },
         {
         'name': 'za_diLeptons0_DR',
