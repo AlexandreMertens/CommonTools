@@ -62,8 +62,8 @@ MZ_binning = "(80,0,400)"
 Mjj_binning = "(30,0,600)"
 Mlljj_binning = "(40,0,2400)"
 met_binning = "(40,0,400)"
-
-
+Nj_binning = "(8,0,8)"
+nPV_binning = "(50,0,50)"
 
 
 # Leptons variables
@@ -94,6 +94,7 @@ j2csvName = "za_jet_CSVv2Ordered1"
 j_var = ["p4.Pt()", "p4.Eta()", "p4.Phi()", "p4.M()", "CSVv2", "minDRjl" ]
 j_varName = ["Pt", "Eta", "Phi", "M", "CSVv2", "minDRjl"]
 j_binning = [pt_binning, eta_binning, phi_binning, mj_binning, csv_binning, DR_binning]
+
 
 # MET variables
 
@@ -127,9 +128,47 @@ dijetdilep_var = ["p4.Pt()", "p4.Eta()", "p4.Phi()", "p4.M()"]
 dijetdilep_varName = ["Pt", "Eta", "Phi", "M"]
 dijetdilep_binning = [pt_binning, eta_binning, phi_binning, Mlljj_binning]
 
+# (B-)Jets Counting
+
+selJets = "za_selJets"
+selJetsName = "selectedJets"
+selJets_var = ["size()"]
+selJets_varName = ["N"]
+selJets_binning = [Nj_binning]
+
+selBjets = "za_selBjetsM"
+selBjetsName = "selectedBjetsM"
+
+# PV N
+
+nPV = "event_true_interactions"
+nPVName = "event_true_interactions"
+nPV_binning = [nPV_binning]
+
 # Cuts
 
-twoMuTwojets = "(mumu_DileptonIsIDMM_cut * mumu_Mll_cut) * event_weight"
+weights = "* event_pu_weight * event_weight"
+
+twoMu = "(mumu_DileptonIsIDMM_cut && mumu_Mll_cut)"+weights
+twoMuName = "mm"
+
+twoEl="(elel_DileptonIsIDMM_cut && elel_Mll_cut)"+weights
+twoElName="ee"
+
+twoL_cond = "((mumu_DileptonIsIDMM_cut && mumu_Mll_cut) || (elel_DileptonIsIDMM_cut * elel_Mll_cut))"
+twoL=twoL_cond+weights
+twoLName="ll"
+
+twoJ_cond="( Length$(za_diJets) > 0 )"  #"(elel_TwoJets_cut || mumu_TwoJets_cut)"
+twoLtwoJ = "("+twoL_cond + " && " + twoJ_cond+")"+ weights
+twoLtwoJName = "lljj"
+
+twoB_cond= "( Length$(za_diJets) > 0 && za_diJets[0].isMM )" #"(elel_TwoBjets_cut || mumu_TwoBjets_cut)"
+twoLtwoB = twoL_cond + " * " + twoB_cond+weights
+twoLtwoBName = "llbb"
+
+'''
+twoMuTwojets = "(mumu_DileptonIsIDMM_cut && mumu_Mll_cut) * event_weight"
 twoMuTwojetsName = "mmjj"
 
 twoMuTwojetsMM = "(mumu_DileptonIsIDMM_cut * mumu_Mll_cut * mumu_DiJetBWP_MM_cut) * event_weight"
@@ -144,7 +183,7 @@ twoLepTwoBjetsName  = "llbb"
 
 test_highMass = "((elel_DileptonIsIDMM_cut * elel_Mll_cut * elel_DiJetBWP_MM_cut) || (mumu_DileptonIsIDMM_cut * mumu_Mll_cut * mumu_DiJetBWP_MM_cut)) * ( Length$(za_diLeptons) > 0 && za_diLeptons[0].p4.Pt() > 200 && za_diJets[0].p4.Pt() > 200) * event_weight"
 test_highMassName = "llbb_HM"
-
+'''
 #print l_var[0]
 
 
@@ -152,7 +191,7 @@ test_highMassName = "llbb_HM"
 
 ## 2 Muons 2 Jets :
 
-fjson = open('plots_all.json', 'w')
+fjson = open('plots_all.py', 'w')
 fjson.write( "plots = [\n")
 fyml = open('plots_all.yml', 'w')
 
@@ -160,18 +199,48 @@ fyml = open('plots_all.yml', 'w')
 ## CandCount variables :
 
 options = options_()
-
+'''
 for cutkey in options.cut :
         print 'cutkey : ', cutkey
         ### get M_A and M_H ###
         #mH[0] = float(options.mH_list[cutkey])
         #mA[0] = float(options.mA_list[cutkey])
         printInPy(fjson, fyml, options.cut[cutkey], twoLepTwoBjets+" && "+cutkey,"(2, 0, 2)", 0)
-
+'''
 ## Control Plots :
 
-printInJson(fjson, fyml, l1, l1Name, l_var, l_varName, twoMuTwojets, twoMuTwojetsName, l_binning, 0)
-printInJson(fjson, fyml, l2, l2Name, l_var, l_varName, twoMuTwojets, twoMuTwojetsName, l_binning, 0)
+# 1) 2L stage
+printInJson(fjson, fyml, l1, l1Name, l_var, l_varName, twoMu, twoMuName, l_binning, 0)
+printInJson(fjson, fyml, l2, l2Name, l_var, l_varName, twoMu, twoMuName, l_binning, 0)
+printInJson(fjson, fyml, l1, l1Name, l_var, l_varName, twoEl, twoElName, l_binning, 0)
+printInJson(fjson, fyml, l2, l2Name, l_var, l_varName, twoEl, twoElName, l_binning, 0)
+printInJson(fjson, fyml, dilep, dilepName, dilep_var, dilep_varName, twoMu, twoMuName, dilep_binning, 0)
+printInJson(fjson, fyml, dilep, dilepName, dilep_var, dilep_varName, twoEl, twoElName, dilep_binning, 0)
+printInJson(fjson, fyml, selJets, selJetsName, selJets_var, selJets_varName, twoL, twoLName, selJets_binning, 0)
+printInJson(fjson, fyml, selBjets, selBjetsName, selJets_var, selJets_varName, twoL, twoLName, selJets_binning, 0)
+printInJson(fjson, fyml, nPV, nPVName, "", "", twoL, twoLName, nPV_binning, 0)
+
+# 2) 2L2J stage
+printInJson(fjson, fyml, l1, l1Name, l_var, l_varName, twoLtwoJ, twoLtwoJName, l_binning, 0)
+printInJson(fjson, fyml, l2, l2Name, l_var, l_varName, twoLtwoJ, twoLtwoJName, l_binning, 0)
+printInJson(fjson, fyml, dilep, dilepName, dilep_var, dilep_varName, twoLtwoJ, twoLtwoJName, dilep_binning, 0)
+printInJson(fjson, fyml, selJets, selJetsName, selJets_var, selJets_varName, twoLtwoJ, twoLtwoJName, selJets_binning, 0)
+printInJson(fjson, fyml, selBjets, selBjetsName, selJets_var, selJets_varName, twoLtwoJ, twoLtwoJName, selJets_binning, 0)
+printInJson(fjson, fyml, j1pt, j1ptName, j_var, j_varName, twoLtwoJ, twoLtwoJName, j_binning, 0)
+printInJson(fjson, fyml, j2pt, j2ptName, j_var, j_varName, twoLtwoJ, twoLtwoJName, j_binning, 0)
+#printInJson(fjson, fyml, j1csv, j1csvName, j_var, j_varName, twoLtwoJ, twoLtwoJName, j_binning, 0)
+#printInJson(fjson, fyml, j2csv, j2csvName, j_var, j_varName, twoLtwoJ, twoLtwoJName, j_binning, 0)
+
+
+# 3) 2L2B stage
+
+printInJson(fjson, fyml, dilep, dilepName, dilep_var, dilep_varName, twoLtwoB, twoLtwoBName, dilep_binning, 0)
+printInJson(fjson, fyml, j1pt, j1ptName, j_var, j_varName, twoLtwoB, twoLtwoBName, j_binning, 0)
+printInJson(fjson, fyml, j2pt, j2ptName, j_var, j_varName, twoLtwoB, twoLtwoBName, j_binning, 0)
+printInJson(fjson, fyml, dijet, dijetName, dijet_var, dijet_varName, twoLtwoB, twoLtwoBName, dijet_binning, 1)
+
+
+'''
 printInJson(fjson, fyml, j1pt, j1ptName, j_var, j_varName, twoMuTwojets, twoMuTwojetsName, j_binning, 0)
 printInJson(fjson, fyml, j2pt, j2ptName, j_var, j_varName, twoMuTwojets, twoMuTwojetsName, j_binning, 0)
 printInJson(fjson, fyml, j1csv, j1csvName, j_var, j_varName, twoMuTwojets, twoMuTwojetsName, j_binning, 0)
@@ -211,4 +280,4 @@ printInJson(fjson, fyml, dilep, dilepName, dilep_var, dilep_varName, test_highMa
 printInJson(fjson, fyml, dijet, dijetName, dijet_var, dijet_varName, test_highMass, test_highMassName, dijet_binning, 0)
 printInJson(fjson, fyml, met, metName, met_var, met_varName, test_highMass, test_highMassName, met_binning, 1)
 
-
+'''
