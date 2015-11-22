@@ -42,7 +42,7 @@ print "Category & ",
 for file_idx in range(len(bkgFiles)) :
   print bkgFiles[file_idx][0]+ " & ",
 
-print "data \\\\"
+print "tot. bkg. & data \\\\"
 
 for var_idx in range(len(variable)):
   print variable[var_idx][0], ' & ',
